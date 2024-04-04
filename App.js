@@ -1,9 +1,70 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TextInput, Button, FlatList, Pressable, Modal, ScrollView, Image } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
+
+
+// sqlite database
+
+import {
+  enablePromise,
+  openDatabase,
+} from "react-native-sqlite-storage"
+
+// Enable promise for SQLite
+enablePromise(true)
+
+const connectToDatabase = async () => {
+  return openDatabase(
+    { name: "CalorieBalance.db", location: "default" },
+    () => {},
+    (error) => {
+      console.error(error)
+      throw Error("Could not connect to database")
+    }
+  )
+}
+
+const createTables = async (db) => {
+  const foodQuery = `
+    CREATE TABLE IF NOT EXISTS food (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        calories TEXT
+    )
+  `
+  const exerciseQuery = `
+   CREATE TABLE IF NOT EXISTS exercise (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT,
+      calories TEXT
+   )
+  `
+  try {
+    await db.executeSql(foodQuery)
+    await db.executeSql(exerciseQuery)
+  } catch (error) {
+    console.error(error)
+    throw Error(`Failed to create tables`)
+  }
+}
+
+
 
 
 export default function App() {
+
+  const loadData = useCallback(async () => {
+    try {
+      const db = await connectToDatabase()
+      await createTables(db)
+    } catch (error) {
+      console.error(error)
+    }
+  }, [])
+  
+  useEffect(() => {
+    loadData()
+  }, [loadData])
 
   // Create the gloabl variables
   const [allFood, setAllFood] = useState([]); // List of all food entered
