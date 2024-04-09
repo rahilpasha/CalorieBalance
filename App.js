@@ -1,7 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TextInput, Button, FlatList, Pressable, Modal, ScrollView, Image } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Button, FlatList, Pressable, Modal, Image } from 'react-native';
 import React, { useState } from 'react';
-
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 export default function App() {
 
@@ -27,26 +28,17 @@ export default function App() {
     'sugar' : 0
   });
   
-  const [foodEntry, setFoodEntry] = useState(''); // Input variable for the nutrient calculations
-
   const [allExercises, setAllExercises] = useState([]); // List of all exercises entered
   const [dailyExercise, setDailyExercise] = useState(0); // Total number of calories burnt
-
-  // Input variables for the exercise calculations
-  const [exerciseEntry, setExerciseEntry] = useState('');
-  const [gender, setGender] = useState('');
-  const [weight, setWeight] = useState(0);
-  const [height, setHeight] = useState(0);
-  const [age, setAge] = useState(0);
   
+  function FoodScreen() {
 
-  return (
-    
-    <View style={styles.container}>
+    const [foodEntry, setFoodEntry] = useState(''); // Input variable for the nutrient calculations
 
-      <ScrollView style={styles.scroll}>
+    return (
 
-        <Image style={styles.logo} source={require('./assets/logo.png')} />
+      <View style={styles.container}>
+        <Image style={styles.logo} source={require('./assets/logo_v2.png')} />
         
         <View style={styles.dashboard}>
           <Text style={styles.caloriesCount}>Daily Calories: {Math.round(dailyIntake.calories)} </Text>
@@ -111,8 +103,29 @@ export default function App() {
             <Button title='Submit' color='#111818' onPress={() => getFoodNutrition(foodEntry)}/>
           </View>
         </View>
+      </View>
+
+    )
+  }
+
+  function ExerciseScreen() {
+    
+    // Input variables for the exercise calculations
+    const [exerciseEntry, setExerciseEntry] = useState('');
+    const [gender, setGender] = useState('');
+    const [weight, setWeight] = useState(0);
+    const [height, setHeight] = useState(0);
+    const [age, setAge] = useState(0);
+
+    return (
+      <View style={styles.container}>
+
+        <Image style={styles.logo} source={require('./assets/logo_v2.png')} />
         
-        
+        <View style={styles.dashboard}>
+          <Text style={styles.caloriesCount}>Calories Burnt: {Math.round(dailyExercise)}</Text>
+        </View>
+
         <View style={styles.listContainer}>
           <FlatList
             style={styles.foodList}
@@ -125,43 +138,52 @@ export default function App() {
           />
         </View>
 
-        <View style={[styles.dashboard]}>
-          <Text style={styles.caloriesCount}>Calories Burnt: {Math.round(dailyExercise)}</Text>
-        </View>
-
         <View style={styles.exerciseInput}>
 
           <TextInput style={styles.input} width='80%' placeholder='exercise' placeholderTextColor='#8FBEF3' onChangeText={(exerciseInput) => setExerciseEntry(exerciseInput)}/>
-          <TextInput style={styles.input} width='40%' placeholder='male or female' placeholderTextColor='#8FBEF3' onChangeText={(text) => setGender(text)}/>
+          {/* <TextInput style={styles.input} width='40%' placeholder='male or female' placeholderTextColor='#8FBEF3' onChangeText={(text) => setGender(text)}/>
           <TextInput style={styles.input} width='40%' placeholder='weight (lbs)' placeholderTextColor='#8FBEF3' onChangeText={(text) => setWeight(parseInt(text, 10))} />
           <TextInput style={styles.input} width='40%' placeholder='height (in)' placeholderTextColor='#8FBEF3' onChangeText={(text) => setHeight(parseInt(text, 10))} />
-          <TextInput style={styles.input} width='40%' placeholder='age' placeholderTextColor='#8FBEF3' onChangeText={(text) => setAge(parseInt(text, 10))} />
+          <TextInput style={styles.input} width='40%' placeholder='age' placeholderTextColor='#8FBEF3' onChangeText={(text) => setAge(parseInt(text, 10))} /> */}
 
 
         </View>
 
         <View style={styles.submitBox}>
-          <Button title='Submit' color='#111818' onPress={() => getCaloriesBurnt(exerciseEntry, gender, weight, height, age)}/>
+          <Button title='Submit' color='#111818' onPress={() => getCaloriesBurnt(exerciseEntry, 'male', 150, 70, 20)}/>
         </View>
+      </View>
+    )
+  }
 
-        <StatusBar style="auto" />
-
-      </ScrollView>
-    </View>
+  // Create the navigation tab
+  const Tab = createBottomTabNavigator();
+  return (
+    <NavigationContainer style={{backgroundColor: 'green'}}>
+      <Tab.Navigator screenOptions={
+        {
+          tabBarActiveTintColor: '#6bbd40'
+        }
+      }>
+        <Tab.Screen name="Food" component={FoodScreen} />
+        <Tab.Screen name="Exercise" component={ExerciseScreen} />
+      </Tab.Navigator>
+    </NavigationContainer>
   );
 
   // Get the nutrition information from the API
   function getFoodNutrition(food) {
     food_url = "https://trackapi.nutritionix.com/v2/natural/nutrients";
 
-    return fetch(food_url, {
+    // Send the API request
+    fetch(food_url, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        'x-app-id': '3d415188',
-        'x-app-key': '202343b02beb731a678bdef385ee803d',
-        'x-remote-user-id': '0'
+        'x-app-id': '30d57d91',
+        'x-app-key': '26b6e05ca74948d4db4cf3ab983d3e3e',
+         'x-remote-user-id': '0'
       },
       body: JSON.stringify({
         'query': food
@@ -171,6 +193,7 @@ export default function App() {
     .then(response => {
       console.log(response.foods[0].food_name);
 
+      // Update state variables
       setAllFood([... allFood, {
         'name' : response.foods[0].food_name,
         'calories' : response.foods[0].nf_calories,
@@ -199,7 +222,8 @@ export default function App() {
   function getCaloriesBurnt(exercise, gender, weight, height, age) {
     food_url = "https://trackapi.nutritionix.com/v2/natural/exercise";
 
-    return fetch(food_url, {
+    // Send the API request
+    fetch(food_url, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -219,6 +243,7 @@ export default function App() {
     .then(response => {
       console.log(response.exercises[0].name + ' ' + response.exercises[0].nf_calories);
 
+      // Update state variables
       setAllExercises([... allExercises, {
         'exercise' : response.exercises[0].name,
         'calories' : response.exercises[0].nf_calories
@@ -230,30 +255,24 @@ export default function App() {
     .catch((error) => {
       console.error(error);
     });
-  }
+  };
 
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: '#e6eded',
-    backgroundColor: '#111818',
+    backgroundColor: '#e6eded',
     alignItems: 'center',
-    justifyContent: 'center',
-  },
-  scroll: {
-    width: '90%',
   },
   logo: {
     alignSelf: 'center',
-    marginTop: 50,
-    marginBottom: 10
+    maxWidth: '80%'
   },
   dashboard: {
     alignSelf: 'center',
     alignItems: 'center',
-    backgroundColor: '#5ab44b',
+    backgroundColor: '#668C2D',
     borderRadius: '15px',
     paddingVertical: 10,
     width: "80%"
@@ -275,7 +294,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   listContainer: {
-    maxHeight: '50%',
+    maxHeight: '55%',
   },
   foodList: {
     backgroundColor: '#35333B',
@@ -293,7 +312,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     marginBottom: 10,
     alignSelf: 'right',
-    backgroundColor: '#8FBEF3',
+    backgroundColor: '#6bbd40',
     display: 'flex',
     flexDirection: 'row',
     width: '100%'
@@ -341,7 +360,7 @@ const styles = StyleSheet.create({
   },
   modal: {
     alignSelf: 'center',
-    backgroundColor: '#8DD874',
+    backgroundColor: '#668C2D',
     borderRadius: 10,
     padding: 10,
     marginTop: 250,
