@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TextInput, Button, FlatList, Pressable, Modal, 
 import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import * as Haptics from 'expo-haptics';
 
 export default function App() {
 
@@ -64,6 +65,7 @@ export default function App() {
               <Pressable onPress={() => {
                 setModalVisible(false);
                 setContainerOpacity(1);
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
                 }}>
                 <Text style={styles.close}> Close </Text>
               </Pressable>
@@ -94,6 +96,7 @@ export default function App() {
                     })
                     setModalVisible(true);
                     setContainerOpacity(0.5);
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
                   }}>
                     <Image source={require('./assets/infoIcon.png')} />
                   </Pressable>
@@ -107,7 +110,10 @@ export default function App() {
         <View style={styles.inputBox}>
           <TextInput style={styles.input} placeholder='food' placeholderTextColor='#8FBEF3' onChangeText={(foodInput) => setFoodEntry(foodInput)}/>
           <View style={styles.submitBox}>
-            <Button title='Submit' color='#111818' onPress={() => getFoodNutrition(foodEntry)}/>
+            <Button title='Submit' color='#111818' onPress={() => {
+              getFoodNutrition(foodEntry);
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+              }}/>
           </View>
         </View>
       </View>
@@ -157,7 +163,10 @@ export default function App() {
         </View>
 
         <View style={styles.submitBox}>
-          <Button title='Submit' color='#111818' onPress={() => getCaloriesBurnt(exerciseEntry, 'male', 150, 70, 20)}/>
+          <Button title='Submit' color='#111818' onPress={() => {
+            getCaloriesBurnt(exerciseEntry, 'male', 150, 70, 20);
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+            }}/>
         </View>
       </View>
     )
