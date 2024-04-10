@@ -7,18 +7,21 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 export default function App() {
 
   // Create the gloabl variables
-  const [allFood, setAllFood] = useState([]); // List of all food entered
+  const [allFood, setAllFood] = useState([{"calories": 94.64, "carbs": 25.13, "fat": 0.31, "name": "apple", "protein": 0.47, "sugar": 18.91},
+  {"calories": 602.49, "carbs": 34.72, "fat": 32.45, "name": "lasagna", "protein": 43.91, "sugar": 11.27}]); // List of all food entered
   const [dailyIntake, setDailyIntake] = useState( // Total number of nutrients consumed
     {
-      'calories' : 0,
-      'protein' : 0,
-      'carbs' : 0,
-      'fat' : 0,
-      'sugar' : 0
+      'calories' : 697,
+      'protein' : 44,
+      'carbs' : 60,
+      'fat' : 33,
+      'sugar' : 30
     }
   );
 
   const [modalVisible, setModalVisible] = useState(false); // Whether the popup is visible
+  const [containerOpacity, setContainerOpacity] = useState(1); // Opacity of the container
+
   const [selectedFood, setSelectedFood] = useState({ // Selected food for the popup
     'name' : '',
     'calories' : 0,
@@ -28,8 +31,8 @@ export default function App() {
     'sugar' : 0
   });
   
-  const [allExercises, setAllExercises] = useState([]); // List of all exercises entered
-  const [dailyExercise, setDailyExercise] = useState(0); // Total number of calories burnt
+  const [allExercises, setAllExercises] = useState([{'exercise' : 'running', 'calories' : 333}]); // List of all exercises entered
+  const [dailyExercise, setDailyExercise] = useState(333); // Total number of calories burnt
   
   function FoodScreen() {
 
@@ -37,7 +40,7 @@ export default function App() {
 
     return (
 
-      <View style={styles.container}>
+      <View style={[styles.container, {opacity: containerOpacity}]}>
         <Image style={styles.logo} source={require('./assets/logo_v2.png')} />
         
         <View style={styles.dashboard}>
@@ -55,11 +58,14 @@ export default function App() {
             <View style={styles.modal}>
               <Text style={styles.stats}>{selectedFood.name}</Text>
               <Text style={styles.stats}>Calories: {Math.round(selectedFood.calories)}</Text>
-              <Text style={styles.stats}>Protein: {Math.round(selectedFood.protein)} Carbs: {Math.round(selectedFood.carbs)}</Text>
-              <Text style={styles.stats}>Fat: {Math.round(selectedFood.fat)}        Sugar: {Math.round(selectedFood.sugar)}</Text>
+              <Text style={styles.stats}>Protein: {Math.round(selectedFood.protein)}    Carbs: {Math.round(selectedFood.carbs)}</Text>
+              <Text style={styles.stats}>Fat: {Math.round(selectedFood.fat)}          Sugar: {Math.round(selectedFood.sugar)}</Text>
 
-              <Pressable onPress={() => setModalVisible(false)}>
-                <Text style={{alignSelf:'center'}}>Close</Text>
+              <Pressable onPress={() => {
+                setModalVisible(false);
+                setContainerOpacity(1);
+                }}>
+                <Text style={styles.close}> Close </Text>
               </Pressable>
 
             </View>
@@ -87,6 +93,7 @@ export default function App() {
                       'sugar' : item.sugar
                     })
                     setModalVisible(true);
+                    setContainerOpacity(0.5);
                   }}>
                     <Image source={require('./assets/infoIcon.png')} />
                   </Pressable>
@@ -264,6 +271,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#e6eded',
     alignItems: 'center',
+    opacity: 1,
   },
   logo: {
     alignSelf: 'center',
@@ -288,6 +296,7 @@ const styles = StyleSheet.create({
     fontSize: 25,
     fontFamily: 'Gill Sans',
     alignSelf: 'center',
+    lineHeight: 30
   },
   subtitle: {
     fontFamily: 'Gill Sans',
@@ -362,10 +371,22 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     backgroundColor: '#668C2D',
     borderRadius: 10,
-    padding: 10,
+    padding: 15,
     marginTop: 250,
-    position: 'absolute',
-    opacity: 0.9
+    width: '70%',
+    position: 'absolute'
+  },
+  close: {
+    alignSelf: 'center',
+    fontFamily: 'Gill Sans',
+    letterSpacing: 1.25,
+    fontSize: 20,
+    marginTop: 15,
+    color: '#8b0000',
+    borderStyle: 'solid',
+    borderWidth: 2,
+    borderColor: 'black',
+    
   }
 
 });
